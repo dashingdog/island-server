@@ -46,8 +46,8 @@ Book.init(
   },
   merge(
     {
-      tableName: 'book',
-      modelName: 'book',
+      tableName: 'lin_book',
+      modelName: 'lin_book',
       sequelize: db
     },
     InfoCrudMixin.options

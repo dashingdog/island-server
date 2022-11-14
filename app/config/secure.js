@@ -2,12 +2,14 @@
 
 module.exports = {
   db: {
-    database: 'lin-cms',
-    host: 'localhost',
+    database: 'isLand',
+    // host: 'localhost',
+    host: '111.230.94.16',
     dialect: 'mysql',
     port: 3306,
     username: 'root',
-    password: 'root',
+    // password: '123321',
+    password: 'fa123321',
     logging: false,
     timezone: '+08:00'
   },

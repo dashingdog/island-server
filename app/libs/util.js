@@ -13,6 +13,16 @@ function getSafeParamId (ctx) {
   return id;
 }
 
+function getSafeParamType (ctx) {
+  const type = toSafeInteger(get(ctx.params, 'type'));
+  if (!isInteger(type)) {
+    throw new ParametersException({
+      msg: '路由参数错误'
+    });
+  }
+  return type;
+}
+
 function isOptional (val) {
   // undefined , null , ""  , "    ", 皆通过
   if (val === void 0) {
@@ -27,4 +37,4 @@ function isOptional (val) {
   return false;
 }
 
-module.exports = { getSafeParamId, isOptional };
+module.exports = { getSafeParamId, isOptional, getSafeParamType };
