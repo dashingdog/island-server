@@ -1,20 +1,20 @@
-'use strict';
+import { LinRouter, ParametersException } from 'lin-mizar';
 
-const { LinRouter, ParametersException, loginRequired } = require('lin-mizar');
-const { LocalUploader } = require('../../extensions/file/local-uploader');
+import { loginRequired } from '../../middleware/jwt';
+import { LocalUploader } from '../../extension/file/local-uploader';
 
 const file = new LinRouter({
   prefix: '/cms/file'
 });
 
-file.linPost('upload', '/', {}, loginRequired, async ctx => {
+file.linPost('upload', '/', loginRequired, async ctx => {
   const files = await ctx.multipart();
   if (files.length < 1) {
-    throw new ParametersException({ msg: '未找到符合条件的文件资源' });
+    throw new ParametersException({ code: 10033 });
   }
-  const uploader = new LocalUploader('app/assets');
+  const uploader = new LocalUploader('assets');
   const arr = await uploader.upload(files);
   ctx.json(arr);
 });
 
-module.exports = { file };
+export { file };

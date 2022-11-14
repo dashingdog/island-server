@@ -1,12 +1,13 @@
-'use strict';
+import { LinRouter, NotFound } from 'lin-mizar';
+import { LogFindValidator } from '../../validator/log';
+import { PaginateValidator } from '../../validator/common';
 
-const { LinRouter, groupRequired, NotFound } = require('lin-mizar');
-const { LogFindValidator } = require('../../validators/log');
-const { PaginateValidator } = require('../../validators/common');
-const { LogDao } = require('../../dao/log');
+import { groupRequired } from '../../middleware/jwt';
+import { LogDao } from '../../dao/log';
 
 const log = new LinRouter({
-  prefix: '/cms/log'
+  prefix: '/cms/log',
+  module: '日志'
 });
 
 const logDao = new LogDao();
@@ -14,26 +15,21 @@ const logDao = new LogDao();
 log.linGet(
   'getLogs',
   '/',
-  {
-    auth: '查询所有日志',
-    module: '日志',
-    mount: true
-  },
+  log.permission('查询所有日志'),
   groupRequired,
   async ctx => {
     const v = await new LogFindValidator().validate(ctx);
     const { rows, total } = await logDao.getLogs(v);
     if (!rows || rows.length < 1) {
       throw new NotFound({
-        msg: '没有找到相关日志'
+        code: 10220
       });
     }
     ctx.json({
       total: total,
       items: rows,
       page: v.get('query.page'),
-      count: v.get('query.count'),
-      total_page: Math.ceil(total / parseInt(v.get('query.count')))
+      count: v.get('query.count')
     });
   }
 );
@@ -41,27 +37,17 @@ log.linGet(
 log.linGet(
   'getUserLogs',
   '/search',
-  {
-    auth: '搜索日志',
-    module: '日志',
-    mount: true
-  },
+  log.permission('搜索日志'),
   groupRequired,
   async ctx => {
     const v = await new LogFindValidator().validate(ctx);
     const keyword = v.get('query.keyword', false, '');
     const { rows, total } = await logDao.searchLogs(v, keyword);
-    if (!rows || rows.length < 1) {
-      throw new NotFound({
-        msg: '没有找到相关日志'
-      });
-    }
     ctx.json({
       total: total,
       items: rows,
       page: v.get('query.page'),
-      count: v.get('query.count'),
-      total_page: Math.ceil(total / parseInt(v.get('query.count')))
+      count: v.get('query.count')
     });
   }
 );
@@ -69,11 +55,7 @@ log.linGet(
 log.linGet(
   'getUsers',
   '/users',
-  {
-    auth: '查询日志记录的用户',
-    module: '日志',
-    mount: true
-  },
+  log.permission('查询日志记录的用户'),
   groupRequired,
   async ctx => {
     const v = await new PaginateValidator().validate(ctx);
@@ -81,8 +63,13 @@ log.linGet(
       v.get('query.page'),
       v.get('query.count')
     );
-    ctx.json(arr);
+    ctx.json({
+      total: arr.length,
+      items: arr,
+      page: v.get('query.page'),
+      count: v.get('query.count')
+    });
   }
 );
 
-module.exports = { log };
+export { log };

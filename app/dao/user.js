@@ -1,112 +1,281 @@
-/* eslint-disable new-cap */
-'use strict';
+import {
+  RepeatException,
+  generate,
+  NotFound,
+  Forbidden,
+  config,
+  getTokens
+} from 'lin-mizar';
+import { UserModel, UserIdentityModel } from '../model/user';
+import { UserGroupModel } from '../model/user-group';
+import { GroupPermissionModel } from '../model/group-permission';
+import { PermissionModel } from '../model/permission';
+import { GroupModel } from '../model/group';
 
-const { RepeatException, ParametersException } = require('lin-mizar');
-const { set, has } = require('lodash');
+import sequelize from '../lib/db';
+import { MountType, GroupLevel, IdentityType } from '../lib/type';
+import { Op } from 'sequelize';
+import { set, has, uniq } from 'lodash';
+import { verifyCaptcha } from '../lib/captcha';
 
 class UserDao {
-  async createUser (ctx, v) {
-    let user = await ctx.manager.userModel.findOne({
+  async createUser (v) {
+    let user = await UserModel.findOne({
       where: {
         username: v.get('body.username')
       }
     });
     if (user) {
       throw new RepeatException({
-        msg: '用户名重复，请重新输入'
+        code: 10071
       });
     }
     if (v.get('body.email') && v.get('body.email').trim() !== '') {
-      user = await ctx.manager.userModel.findOne({
+      user = await UserModel.findOne({
         where: {
           email: v.get('body.email')
         }
       });
       if (user) {
         throw new RepeatException({
-          msg: '注册邮箱重复，请重新输入'
+          code: 10076
         });
       }
     }
-    this.registerUser(ctx, v);
+    for (const id of v.get('body.group_ids') || []) {
+      const group = await GroupModel.findByPk(id);
+      if (group.level === GroupLevel.Root) {
+        throw new Forbidden({
+          code: 10073
+        });
+      }
+      if (!group) {
+        throw new NotFound({
+          code: 10023
+        });
+      }
+    }
+    await this.registerUser(v);
+  }
+
+  async getTokens (v, ctx) {
+    if (config.getItem('loginCaptchaEnabled', false)) {
+      const tag = ctx.req.headers.tag;
+      const captcha = v.get('body.captcha');
+
+      if (!verifyCaptcha(captcha, tag)) {
+        throw new Forbidden({
+          code: 10260
+        });
+      }
+    }
+    const user = await UserIdentityModel.verify(
+      v.get('body.username'),
+      v.get('body.password')
+    );
+    const { accessToken, refreshToken } = getTokens({
+      id: user.user_id
+    });
+
+    return {
+      accessToken,
+      refreshToken
+    };
   }
 
   async updateUser (ctx, v) {
-    let user = ctx.currentUser;
+    const user = ctx.currentUser;
+    if (v.get('body.username') && user.username !== v.get('body.username')) {
+      const exit = await UserModel.findOne({
+        where: {
+          username: v.get('body.username')
+        }
+      });
+      if (exit) {
+        throw new RepeatException({
+          code: 10071
+        });
+      }
+      user.username = v.get('body.username');
+    }
     if (v.get('body.email') && user.email !== v.get('body.email')) {
-      const exit = await ctx.manager.userModel.findOne({
+      const exit = await UserModel.findOne({
         where: {
           email: v.get('body.email')
         }
       });
       if (exit) {
-        throw new ParametersException({
-          msg: '邮箱已被注册，请重新输入邮箱'
+        throw new RepeatException({
+          code: 10076
         });
       }
       user.email = v.get('body.email');
     }
     if (v.get('body.nickname')) {
-      user.nickname = v.get('body.nickname')
+      user.nickname = v.get('body.nickname');
     }
-    user.save();
+    if (v.get('body.avatar')) {
+      user.avatar = v.get('body.avatar');
+    }
+    await user.save();
   }
 
-  async getAuths (ctx) {
-    let user = ctx.currentUser;
-    let auths = await ctx.manager.authModel.findAll({
+  async getInformation (ctx) {
+    const user = ctx.currentUser;
+
+    const userGroup = await UserGroupModel.findAll({
       where: {
-        group_id: user.group_id
+        user_id: user.id
       }
     });
-    let group = await ctx.manager.groupModel.findOne({
+    const groupIds = userGroup.map(v => v.group_id);
+    const groups = await GroupModel.findAll({
       where: {
-        id: user.group_id
+        id: {
+          [Op.in]: groupIds
+        }
       }
-    })
-    const aus = this.splitAuths(auths);
-    set(user, 'auths', aus);
-    if (group) {
-      set(user, 'groupName', group.name);
-    }
+    });
+
+    set(user, 'groups', groups);
     return user;
   }
 
-  splitAuths (auths) {
-    let tmp = {};
-    auths.forEach(au => {
-      if (!has(tmp, au['module'])) {
-        tmp[au['module']] = [
-          {
-            module: au['module'],
-            auth: au['auth']
-          }
-        ];
-      } else {
-        tmp[au['module']].push({
-          module: au['module'],
-          auth: au['auth']
-        });
+  async getPermissions (ctx) {
+    const user = ctx.currentUser;
+    const userGroup = await UserGroupModel.findAll({
+      where: {
+        user_id: user.id
       }
     });
-    const aus = Object.keys(tmp).map(key => {
-      let tm1 = Object.create(null);
-      set(tm1, key, tmp[key]);
-      return tm1;
+    const groupIds = userGroup.map(v => v.group_id);
+
+    const root = await GroupModel.findOne({
+      where: {
+        level: GroupLevel.Root,
+        id: {
+          [Op.in]: groupIds
+        }
+      }
     });
-    return aus;
+
+    set(user, 'admin', !!root);
+
+    let permissions = [];
+
+    if (root) {
+      permissions = await PermissionModel.findAll({
+        where: {
+          mount: MountType.Mount
+        }
+      });
+    } else {
+      const groupPermission = await GroupPermissionModel.findAll({
+        where: {
+          group_id: {
+            [Op.in]: groupIds
+          }
+        }
+      });
+
+      const permissionIds = uniq(groupPermission.map(v => v.permission_id));
+
+      permissions = await PermissionModel.findAll({
+        where: {
+          id: {
+            [Op.in]: permissionIds
+          },
+          mount: MountType.Mount
+        }
+      });
+    }
+
+    set(user, 'permissions', this.formatPermissions(permissions));
+
+    return user;
   }
 
-  registerUser (ctx, v) {
-    const user = new ctx.manager.userModel();
-    user.username = v.get('body.username');
-    user.password = v.get('body.password');
-    user.group_id = v.get('body.group_id');
-    if (v.get('body.email') && v.get('body.email').trim() !== '') {
-      user.email = v.get('body.email');
+  async registerUser (v) {
+    let transaction;
+    try {
+      transaction = await sequelize.transaction();
+      const user = {
+        username: v.get('body.username')
+      };
+      if (v.get('body.email') && v.get('body.email').trim() !== '') {
+        user.email = v.get('body.email');
+      }
+      const { id: user_id } = await UserModel.create(user, {
+        transaction
+      });
+      await UserIdentityModel.create(
+        {
+          user_id,
+          identity_type: IdentityType.Password,
+          identifier: user.username,
+          credential: generate(v.get('body.password'))
+        },
+        {
+          transaction
+        }
+      );
+
+      const groupIds = v.get('body.group_ids');
+      if (groupIds && groupIds.length > 0) {
+        for (const id of v.get('body.group_ids') || []) {
+          await UserGroupModel.create(
+            {
+              user_id,
+              group_id: id
+            },
+            {
+              transaction
+            }
+          );
+        }
+      } else {
+        // 未指定分组，默认加入游客分组
+        const guest = await GroupModel.findOne({
+          where: {
+            level: GroupLevel.Guest
+          }
+        });
+        await UserGroupModel.create({
+          user_id,
+          group_id: guest.id
+        });
+      }
+      await transaction.commit();
+    } catch (error) {
+      if (transaction) await transaction.rollback();
     }
-    user.save();
+    return true;
+  }
+
+  formatPermissions (permissions) {
+    const map = {};
+    permissions.forEach(v => {
+      const module = v.module;
+      if (has(map, module)) {
+        map[module].push({
+          permission: v.name,
+          module
+        });
+      } else {
+        set(map, module, [
+          {
+            permission: v.name,
+            module
+          }
+        ]);
+      }
+    });
+    return Object.keys(map).map(k => {
+      const tmp = Object.create(null);
+      set(tmp, k, map[k]);
+      return tmp;
+    });
   }
 }
 
-module.exports = { UserDao };
+export { UserDao };

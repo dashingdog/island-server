@@ -1,17 +1,17 @@
 <h1 align="center">
-  <a href="http://doc.cms.7yue.pro/">
-  <img src="http://doc.cms.7yue.pro/left-logo.png" width="250"/></a>
+  <a href="http://doc.cms.talelin.com/">
+  <img src="http://doc.cms.talelin.com/left-logo.png" width="250"/></a>
   <br>
   Lin-CMS-Koa
 </h1>
 
-<h4 align="center">一个简单易用的CMS后端项目 | <a href="http://doc.cms.7yue.pro/" target="_blank">Lin-CMS-Koa</a></h4>
+<h4 align="center">一个简单易用的CMS后端项目</h4>
 
 <p align="center">
   <a href="http://flask.pocoo.org/docs/1.0/" rel="nofollow">
   <img src="https://img.shields.io/badge/koa-2.7.0-green.svg" alt="flask version" data-canonical-src="https://img.shields.io/badge/koa-2.7.0-green.svg" style="max-width:100%;"></a>
-  <a href="https://pypi.org/project/Lin-CMS/" rel="nofollow"><img src="https://img.shields.io/badge/lin--mizar-0.1.1-green.svg" alt="lin-cms version" data-canonical-src="https://img.shields.io/badge/lin--cms--test-0.0.1--alpha8-red.svg" style="max-width:100%;"></a>
-  <a href="http://doc.cms.7yue.pro/" rel="nofollow"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" alt="LISENCE" data-canonical-src="https://img.shields.io/badge/license-MIT-lightgrey.svg" style="max-width:100%;"></a>
+  <a href="https://pypi.org/project/Lin-CMS/" rel="nofollow"><img src="https://img.shields.io/badge/lin--mizar-0.3.5-green.svg" alt="lin-cms version" data-canonical-src="https://img.shields.io/badge/lin--cms--test-0.0.1--alpha8-red.svg" style="max-width:100%;"></a>
+  <a href="http://doc.cms.talelin.com/" rel="nofollow"><img src="https://img.shields.io/badge/license-MIT-lightgrey.svg" alt="LISENCE" data-canonical-src="https://img.shields.io/badge/license-MIT-lightgrey.svg" style="max-width:100%;"></a>
 </p>
 
 <blockquote align="center">
@@ -20,38 +20,40 @@
 </blockquote>
 
 <p align="center">
-  <a href="#简介">简介</a>&nbsp;|&nbsp;<a href="#快速开始">快速开始</a>&nbsp;|&nbsp;<a href="#下个版本开发计划">下个版本开发计划</a>
+  <a href="#简介">简介</a>&nbsp;|&nbsp;<a href="#版本日志">版本日志</a>
 </p>
 
 ## 简介
 
 ### 什么是 Lin CMS？
 
-Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内容管理系统框
-架**。Lin-CMS 可以有效的帮助开发者提高 CMS 的开发效率。
+Lin-CMS 是林间有风团队经过大量项目实践所提炼出的一套**内容管理系统框架**。Lin-CMS 可以有效的帮助开发者提高 CMS 的开发效率。
 
-本项目是 Lin CMS 后端的 koa 实现，需要前端？请访
-问[前端仓库](https://github.com/TaleLin/lin-cms-vue)。
+本项目是 Lin CMS 后端的 koa 实现，需要前端？请访问[前端仓库](https://github.com/TaleLin/lin-cms-vue)。
 
 ### 当前最新版本
 
-lin-mizar(核心库) ：0.2.0-beta.2
+lin-cms-koa(当前示例工程)：0.3.10
 
-lin-cms-koa(当前示例工程)：0.2.0-beta.1
+lin-mizar(核心库) ：0.3.8
 
 ### 文档地址
 
-[http://doc.cms.7yue.pro/](http://doc.cms.7yue.pro/)
+[http://doc.cms.talelin.com/](http://doc.cms.talelin.com/)
 
 ### 线上 demo
 
 [http://face.cms.7yue.pro/](http://face.cms.7yue.pro/)
 
+### 免费入门视频教程 
+
+[https://www.imooc.com/learn/1247](https://www.imooc.com/learn/1247)
+
 ### QQ 交流群
 
-QQ 群号：643205479
+QQ 群号：643205479 / 814597236
 
-<img class="QR-img" width="258" height="300" src="http://imglf3.nosdn0.126.net/img/Qk5LWkJVWkF3Nmdyc2xGcUtScEJLOVV1clErY1dJa0FsQ3E1aDZQWlZHZ2dCbSt4WXA1V3dRPT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg">
+<!-- <img class="QR-img" width="258" height="300" src="http://imglf3.nosdn0.126.net/img/Qk5LWkJVWkF3Nmdyc2xGcUtScEJLOVV1clErY1dJa0FsQ3E1aDZQWlZHZ2dCbSt4WXA1V3dRPT0.jpg?imageView&thumbnail=1680x0&quality=96&stripmeta=0&type=jpg"> -->
 
 ### 微信公众号
 
@@ -59,7 +61,75 @@ QQ 群号：643205479
 
 <img class="QR-img" src="http://imglf6.nosdn0.126.net/img/YUdIR2E3ME5weEdlNThuRmI4TFh3UWhiNmladWVoaTlXUXpicEFPa1F6czFNYkdmcWRIbGRRPT0.jpg?imageView&thumbnail=500x0&quality=96&stripmeta=0&type=jpg">
 
-### Lin CMS 的特点
+## 版本日志
+
+最新版本 `0.3.12`
+
+### 0.3.12
+
+1. `A` 新增验证码功能，默认关闭验证码
+2. `U` assets 目录用作本地文件上传，移到项目根目录
+
+### 0.3.11
+
+1. `F` 修复消息中心 API 调用拼写错误
+
+### 0.3.10
+
+1. `A` 新增[消息中心](https://github.com/TaleLin/lin-cms-koa/tree/master/app/extension/socket)扩展
+
+### 0.3.9
+
+1. `F` 修复 logger 第二次模板解析错误的问题
+2. `U` 更新 lin-mizar 到 0.3.8
+
+### 0.3.8
+
+1. `F` 修复 缺少 mysql2
+
+### 0.3.7
+
+1. `U` 优化 编辑用户至少选择一个分组
+
+### 0.3.6
+
+1. `A` 新增 yarn.lock
+2. `U` 更新 lin-mizar 到 0.3.5 版本
+3. `F` 修复 disableLoading 为 `undefined` 的问题
+
+### 0.3.5
+
+1. `U` 更新核心库 lin-mizar 到 0.3.4 版本
+2. `F` 修复文件上传丢失 key 字段
+
+### 0.3.4
+
+1. `U` 更新路由视图权限挂载的方式
+2. `U` HttpException 不允许直接修改 status，传入的参数由 errorCode 改为 code
+3. `U` 新增 code-message 配置，返回的成功码和错误码都在这里配置
+4. `U` 支持自定义工作目录
+5. `U` 更新核心库 lin-mizar 到 0.3.3 版本
+
+### 0.3.3
+
+1. `F` `GET /cms/user/information` 返回完整的头像链接
+2. `F` 文件名重命名为用 `-` 连接，并且使用单数
+
+### 0.3.2
+
+1. `F` 更改文件上传返回字段
+2. `F` `GET admin/users` 和 `GET admin/group/all` 接口过滤 `root` 用户
+3. `F` `PUT /admin/user/{id}` 接口不允许修改 `root` 用户的分组
+
+### 0.3.1
+
+1. `F` 更新 `lin-mizar` 到 `0.3.2` 版本，路由属性名由 `auth` --> `permission`
+
+### 0.3.0
+
+1. `A` 将模型层抽离核心库进行重构
+
+## Lin CMS 的特点
 
 Lin CMS 的构筑思想是有其自身特点的。下面我们阐述一些 Lin 的主要特点。
 
