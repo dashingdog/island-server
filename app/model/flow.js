@@ -1,7 +1,7 @@
-const { Sequelize, Model } = require('sequelize');
-const { InfoCrudMixin } = require('lin-mizar/lin/interface');
-const { merge } = require('lodash');
-const { db } = require('lin-mizar/lin/db');
+import { Model, Sequelize } from 'sequelize';
+import { InfoCrudMixin } from 'lin-mizar';
+import { merge } from 'lodash';
+import sequelize from '../lib/db';
 
 class Flow extends Model {
 
@@ -18,7 +18,7 @@ Flow.init({
 }, merge(
   InfoCrudMixin.options,
   {
-    sequelize: db,
+    sequelize,
     tableName: 'flow',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
@@ -26,6 +26,6 @@ Flow.init({
     paranoid: false
   }));
 
-module.exports = {
+exports = {
   Flow
 };

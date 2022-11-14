@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@koa/cors": "^2.2.3",
+    "cos-nodejs-sdk-v5": "^2.11.15",
     "crypto": "^1.0.1",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",

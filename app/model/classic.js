@@ -1,8 +1,7 @@
-const { Sequelize, Model } = require('sequelize');
-const { InfoCrudMixin } = require('lin-mizar/lin/interface');
-const { merge } = require('lodash');
-const { db } = require('lin-mizar/lin/db');
-
+import { InfoCrudMixin } from 'lin-mizar';
+import { merge } from 'lodash';
+import { Sequelize, Model } from 'sequelize';
+import sequelize from '../lib/db';
 const classicFields = {
   image: {
     type: Sequelize.STRING
@@ -24,7 +23,7 @@ class Movie extends Model {
 Movie.init(classicFields, merge(
   InfoCrudMixin.options,
   {
-    sequelize: db,
+    sequelize,
     tableName: 'movie',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
@@ -40,7 +39,7 @@ class Sentence extends Model {
 Sentence.init(classicFields, merge(
   InfoCrudMixin.options,
   {
-    sequelize: db,
+    sequelize,
     tableName: 'sentence',
     createdAt: 'created_at',
     updatedAt: 'updated_at',
@@ -61,7 +60,7 @@ Music.init(musicFields,
   merge(
     InfoCrudMixin.options,
     {
-      sequelize: db,
+      sequelize,
       tableName: 'music',
       createdAt: 'created_at',
       updatedAt: 'updated_at',

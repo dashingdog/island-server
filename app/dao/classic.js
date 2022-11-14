@@ -1,16 +1,16 @@
-const {
+import Sequelize from 'sequelize';
+import {
   Music,
   Sentence,
   Movie
-} = require('../models/classic');
-const { Sequelize } = require('sequelize');
-const {
+} from '../model/classic';
+import {
   Flow
-} = require('../models/flow');
-const {
+} from '../model/flow';
+import {
   Art
-} = require('../models/art');
-const { NotFound, Forbidden } = require('lin-mizar');
+} from '../model/art';
+import { NotFound, Forbidden } from 'lin-mizar';
 class ClassicDao {
   async getFlowList () {
     const flows = await Flow.findAll();
@@ -178,4 +178,4 @@ class ClassicDao {
     bk.save();
   }
 }
-module.exports = { ClassicDao };
+export { ClassicDao };

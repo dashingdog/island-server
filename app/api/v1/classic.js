@@ -1,17 +1,15 @@
-const { ClassicDao } = require('../../dao/classic');
-const {
-  LinRouter,
-  // NotFound,
-  groupRequired,
-  disableLoading
-} = require('lin-mizar'); ;
-const { getSafeParamId, getSafeParamType } = require('../../libs/util');
-const { PositiveIdValidator } = require('../../validators/common');
+import { ClassicDao } from '../../dao/classic';
+import { LinRouter, disableLoading } from 'lin-mizar';
+import { groupRequired } from '../../middleware/jwt';
+
+import { getSafeParamId, getSafeParamType } from '../../lib/util';
+import { PositiveIdValidator } from '../../validator/common';
 const {
   CreateOrUpdateClassicValidator
-} = require('../../validators/classic');
+} = require('../../validator/classic');
 const classicApi = new LinRouter({
-  prefix: '/v1/classic'
+  prefix: '/v1/classic',
+  module: '期刊'
 });
 const classicDao = new ClassicDao();
 classicApi.get('/getList/:type', async ctx => {
@@ -71,13 +69,9 @@ classicApi.delete('/removeFlow/:type/:id', async ctx => {
 });
 
 classicApi.linDelete(
-  'delete',
+  'deleteClass',
   '/delete/:type/:id',
-  {
-    auth: '删除期刊',
-    module: '期刊',
-    mount: true
-  },
+  classicApi.permission('删除期刊'),
   groupRequired,
   async ctx => {
     const v = await new PositiveIdValidator().validate(ctx);
