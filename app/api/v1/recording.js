@@ -6,8 +6,9 @@ const recordingApi = new LinRouter({
   prefix: '/v1/recording',
   module: '录音'
 });
-recordingApi.get('/getList/:type', async ctx => {
-
+recordingApi.get('/list', async ctx => {
+  const list = await Recording.findAll();
+  ctx.toJSON(list);
 });
 
 recordingApi.post('/create', async ctx => {
